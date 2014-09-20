@@ -4,8 +4,7 @@ Common Lisp File Utilities
 ### Work in progress, not ready for public consumption
 
  * [installation instructions](INSTALL.md)
-
-
+ * [documentation](doc/index.html)
 
 I want a sensible way to work with Unix and Windows file systems from
 Common Lisp.

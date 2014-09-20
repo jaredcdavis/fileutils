@@ -32,7 +32,8 @@
 
 (in-package :cl-user)
 
-(defpackage "FILEUTILS"
-  (:use :cl-user))
+(defpackage :fileutils
+  (:use :cl)
+  )
 
 

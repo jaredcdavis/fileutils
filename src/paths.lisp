@@ -30,13 +30,6 @@
 ;
 ; Original author: Jared Davis <jared@kookamara.com>
 
-(in-package :asdf-user)
+(in-package "FILEUTILS")
 
-(defsystem "fileutils"
-  :description "A library for working with the unix and windows file systems."
-  :version "0.0.1"
-  :author "Kookamara LLC"
-  :license "MIT"
-  :components ((:file "src/packages")
-               (:file "src/paths")))
-
+(defun f (x) x)
