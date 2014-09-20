@@ -1,7 +1,11 @@
+Common Lisp File Utilities
+==========================
+
 ### Work in progress, not ready for public consumption
 
-fileutils
-=========
+ * [installation instructions](INSTALL.md)
+
+
 
 I want a sensible way to work with Unix and Windows file systems from
 Common Lisp.
@@ -38,6 +42,14 @@ Possible starting points:
     frustrating.  Anyway, UIOP seems to have a lot of the CL-FAD/OSICAT
     functions and also new stuff like `pathname-parent-directory-pathname`.
 
+Hey this might be really useful
+
+ * http://fare.tunes.org/files/asdf3/asdf3-2014.html#%28part._pathnames%29
+
+
+
+
+
 After trying to work with this stuff for a good while, I've concluded that
 
 * I still don't understand a lot about Common Lisp pathnames.
@@ -55,9 +67,15 @@ After trying to work with this stuff for a good while, I've concluded that
 # Fileutils
 
 It seems like we could do a lot better by trying to entirely avoid Lisp
-pathnames.
+pathnames.  I want something that is:
 
+* Portable across many Lisps and operating systems.
 
+* Relatively modest in its functionality.
+
+* Well documented.
+
+* Well tested.
 
 
 
