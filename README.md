@@ -3,7 +3,8 @@
 fileutils
 =========
 
-I want a sensible way to work with the file system from Common Lisp.
+I want a sensible way to work with Unix and Windows file systems from
+Common Lisp.
 
 Possible starting points:
 
@@ -49,6 +50,13 @@ After trying to work with this stuff for a good while, I've concluded that
   flexibility.
 
 * It just shouldn't be this hard.
+
+
+# Fileutils
+
+It seems like we could do a lot better by trying to entirely avoid Lisp
+pathnames.
+
 
 
 
