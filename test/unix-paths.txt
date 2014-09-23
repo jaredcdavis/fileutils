@@ -7,6 +7,10 @@
 /foo/bar/hello.txt
 /foo/bar/baz/hello.txt
 /a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/hello.txt
+/.hello.txt
+/foo/.hello.txt
+/.foo/hello.txt
+/.foo/.hello.txt
 /.
 /a/.
 /a/b/.
@@ -61,3 +65,43 @@
 /a/../b/
 /a/b/c/..
 /a/b/../c
+//..
+//..//
+/a////..
+/a////..////
+/a/b///////..
+/a/b/../////////
+/a/..///b
+/a/../b////
+/a/b////c/..
+/a/b///..///c
+hello.txt
+foo/hello.txt
+foo/bar/hello.txt
+foo//bar.txt
+foo///bar.txt
+foo/./..//..//bar.txt
+.
+..
+./foo/bar
+.//.//.////foo/bar
+./foo bar
+./foo bar/baz
+./foo.d/bar/blah
+.foo
+.foo/.bar
+.foo/bar
+../foo/bar
+../foo/bar/baz
+../ foo /bar
+./.
+././
+././.
+./././
+./././..
+./.././../
+./..
+./../
+../.
+.././
+.././..

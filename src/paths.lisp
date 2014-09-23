@@ -92,7 +92,10 @@
         (concatenate 'string "/" (join clean "/")))
     ;; Relative path
     (let* ((parts (strtok x '(#\/)))
-           (clean (remove "." parts :test 'equal)))
+           (clean (remove "." parts :test 'equal))
+           (clean (if (atom clean)
+                      (list ".")
+                    clean)))
       (join clean "/"))))
 
 (defun clean-path-windows (x)
