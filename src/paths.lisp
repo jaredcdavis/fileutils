@@ -32,7 +32,6 @@
 
 (in-package "FILEUTILS")
 
-
 (defstruct config
   ;; Kind of file system we are working with.
 
@@ -47,43 +46,69 @@
    ;; T or NIL
    t))
 
+(defvar *default-config*
+  (make-config))
+
+(defun absolute-path-p-unix (x)
+  (declare (type string x))
+  (let ((xl (length x)))
+    (declare (type fixnum xl))
+    (and (< 0 xl)
+         (eql (char x 0) #\/))))
+
+(defun absolute-path-p-windows (x)
+  (declare (type string x))
+  (let ((xl (length x)))
+    (declare (type fixnum xl))
+    ;; BOZO almost certainly wrong
+    (and (< 1 xl)
+         (eql (char x 1) ":"))))
+
+(defun absolute-path-p (x &key (config *default-config*))
+  ;; Public.
+  (check-type x string)
+  (check-type config config)
+  (let ((kind (config-kind config)))
+    (case kind
+      (:unix     (absolute-path-p-unix x))
+      (:windows  (absolute-path-p-windows x))
+      (otherwise (error "Unknown file system configuration ~a" kind)))))
+
+(defun remove-leading-occurrences (lst x)
+  (cond ((atom x)
+         nil)
+        ((member (car x) lst :test 'equal)
+         (remove-leading-occurrences lst (cdr x)))
+        (t
+         x)))
+
+(defun clean-path-unix (x)
+  (declare (type string x))
+  (if (absolute-path-p-unix x)
+      (let* ((parts (strtok x '(#\/)))
+             (clean (remove "." parts :test 'equal))
+             (clean (remove-leading-occurrences '("/" "..") clean)))
+        ;; bozo how to handle trailing slash?
+        (concatenate 'string "/" (join clean "/")))
+    ;; Relative path
+    (let* ((parts (strtok x '(#\/)))
+           (clean (remove "." parts :test 'equal)))
+      (join clean "/"))))
+
+(defun clean-path-windows (x)
+  (declare (type string x))
+  (error "Implement clean-path for windows."))
+
+(defun clean-path (x &key (config *default-config*))
+  (check-type x string)
+  (check-type config config)
+  (let ((kind (config-kind config)))
+    (case kind
+      (:unix     (clean-path-unix x))
+      (:windows  (clean-path-windows x))
+      (otherwise (error "Unknown file system configuration ~a" kind)))))
 
 
-(defstruct path
-  ;; Internal (parsed) representation of a single path.  (There's no notion of
-  ;; a "wild" pathname as in Lisp.)
-
-  (type
-   ;; One of :ABSOLUTE or :RELATIVE.
-   ;;    Indicates whether this is an absolute or relative path.
-   :relative)
-
-  (vol
-   ;; String or NIL.
-   ;;    For Unix paths or relative paths on Windows, this is NIL.
-   ;;    For absolute paths on Windows, this is the drive letter with a
-   ;;    colon, e.g., "C:" or "D:".
-   nil)
-
-  (parts
-   ;; String list.
-   ;;    This is the list of file name components in the order you would
-   ;;    expect.  For instance:
-   ;;
-   ;;     - For a path like "/home/jared/hello.txt", this would be
-   ;;         ("home" "jared" "hello.txt").
-   ;;
-   ;;     - For a relative path like "../share/images", this would be
-   ;;         (".." "share" "images")
-   ;;
-   ;; The parts need not be canonical.  That is, it is valid to have
-   ;; parts such as:
-   ;;      ("home" "jared" "Downloads" ".." "Documents")
-   ;; instead of just:
-   ;;      ("home" "jared" "Documents")
-   ;;
-   ;; The empty part-list is valid.  It should be interpreted as (".")
-   nil))
 
 #|| 
 

@@ -74,3 +74,45 @@
   ;; empty strings are ever found in strtok's output.
   (declare (type string x))
   (nreverse (strtok-aux x 0 (length x) delimiters nil nil)))
+
+
+
+(defun revappend-chars-aux (x n xl acc)
+  ;; x is the string whose characters we're consing into acc
+  ;; n is our current position in x
+  ;; xl is the length of x
+  (declare (type string x)
+           (type fixnum n xl))
+  (if (eql n xl)
+      acc
+    (revappend-chars-aux x
+                         (the fixnum (+ 1 n))
+                         xl
+                         (cons (char x n) acc))))
+
+(declaim (inline revappend-chars))
+(defun revappend-chars (x acc)
+  ;; Append the characters from the string X onto ACC in reverse order.
+  (revappend-chars-aux x 0 (length x) acc))
+
+
+
+(defun join-aux (x separator acc)
+  ;; X is a list of strings.
+  ;; Separator is a string
+  ;; Acc is an accumulator for the answer, characters in reverse order
+  (cond ((atom x)
+         acc)
+        ((atom (cdr x))
+         (revappend-chars (car x) acc))
+        (t
+         (let* ((acc (revappend-chars (car x) acc))
+                (acc (revappend-chars separator acc)))
+           (join-aux (cdr x) separator acc)))))
+
+(declaim (inline join))
+(defun join (x separator)
+  ;; X is a list of strings and SEPARATOR is a string.
+  ;; Example: (join '("a" "b" "c") ".") --> "a.b.c"
+  (rchars-to-string (join-aux x separator nil)))
+

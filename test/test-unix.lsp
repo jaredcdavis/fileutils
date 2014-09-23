@@ -30,15 +30,38 @@
 ;
 ; Original author: Jared Davis <jared@kookamara.com>
 
-(in-package :cl-user)
+(in-package "CL-USER")
+(ql:quickload "fileutils")
 
-(defpackage :fileutils
-  (:use :cl)
-  (:export #:make-config
-           #:*default-config*
-           #:absolute-path-p
-           #:clean-path
-           )
-  )
+(defun read-entries (stream)
+  (let ((entry1 (read stream nil nil)))
+    (if (not entry1)
+        nil
+      (cons entry1
+            (read-entries stream)))))
 
+(defvar *entries*
+  (with-open-file (in "unix.spec")
+    (read-entries in)))
+
+(defun check-entry (entry)
+  (let ((path       (cdr (assoc :path entry)))
+        (absolute-p (cdr (assoc :absolute-p entry)))
+        (clean      (cdr (assoc :clean entry))))
+    (unless (stringp path)
+      (error "Path isn't even a string? ~S" entry))
+    (unless (equal absolute-p (fileutils:absolute-path-p path))
+      (error "~S: Expected absolute-p ~S, but got ~S.~%"
+             path absolute-p (fileutils:absolute-path-p path)))
+    (unless (equal clean (fileutils:clean-path path))
+      (error "~S: Expected clean ~S, but got ~S.~%"
+             path clean (fileutils:clean-path path)))))
+
+(progn
+  (loop for entry in *entries* do (check-entry entry))
+  (with-open-file (out "unix.ok"
+                       :direction :output
+                       :if-exists :supersede)
+    (format out "Checked ~a entries, all tests passed."
+            (length *entries*))))
 
