@@ -38,5 +38,6 @@
   :author "Kookamara LLC"
   :license "MIT"
   :components ((:file "src/packages")
+               (:file "src/strings")
                (:file "src/paths")))
 
