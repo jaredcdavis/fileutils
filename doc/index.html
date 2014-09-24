@@ -43,14 +43,85 @@ Original author: Jared Davis <jared@kookamara.com>
 
 <body>
 
-<h1>Fileutils &mdash; Common Lisp File Utilities Library</h1>
-<hr>
+<h1>Fileutils Library</h1>
 
-BOZO document me.
+<p>Fileutils is a library of file-system related functions for Common Lisp.  It
+is meant to be portable across Unix-like and Windows file systems and across
+Lisp implementations.</p>
+
+<p>Fileutils avoids the Common Lisp <i>pathname</i> functionality (which
+differs across Lisp implementations), and instead provides an API where paths
+are represented as ordinary strings.  Users of fileutils should not need to
+know anything about Common Lisp's pathnames.</p>
 
 
-<h2>Path Names</h2>
+<h2>Installation</h2>
 
+<p>Note: Installation instructions are not covered here.  Instead, see
+BOZO.</p>
+
+
+<h2><a name="definitions">Definitions</a></h2>
+
+<h5><a name="configuration">Configuration</a></h5>
+
+<p>Many Fileutils can optionally accept a <b>config</b> argument that governs
+their behavior.  For instance, the <tt>absolute-path-p</tt> function can be
+configured to act like a Unix system or a Windows system.</p>
+
+<p>By default all such Fileutils functions read their configuration from
+<b>fileutils:*default-config*</b>, which is automatically initialized when
+fileutils is loaded as is appropriate for the host.</p>
+
+<p>BOZO describe configuration objects and what can be controlled.</p>
+
+
+<h5><a name="vanillapath">Vanilla Path</a></h5>
+
+<p>Many Fileutils functions accept <b>vanilla path</b> arguments.  A vanilla
+path is an ordinary Common Lisp strings that should generally indicate a single
+file or directory.</p>
+
+<p>Characters like <b>*</b> and <b>?</b>, which are given special
+interpretation in many shells, have no special meaning in vanilla paths.  That
+is, a vanilla path such as <tt>"foo/*.txt"</tt> does <b>not</b> refer to all of
+the files in <tt>foo/</tt> that end with <tt>.txt</tt>; instead, it refers to a
+single file whose name might have to be written using quotes
+like <tt>'foo/*.txt'</tt> to avoid wildcard expansion in most shells.</p>
+
+<p>The <b>~</b> character, which expands to user home directories on most
+shells, also has no special meaning in a vanilla path.  That is, a vanilla path
+such as <tt>"~jared/foo.txt"</tt> does not refer to <tt>foo.txt</tt> in my home
+directory, but instead referse to a single file whose name might be written at
+the terminal as <tt>'./~jared/foo.txt'</tt>.</p>
+
+
+
+<h2><a name="pathname">Path Name Functions</a></h2>
+
+<h5><a name="absolute-path-p">(absolute-path-p path [:config config]) &rarr; bool</a></h5>
+<ul>
+<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
+<li><tt>config</tt> is a <a href="#configuration">configuration</a> which
+defaults to <b>fileutils:*default-config*</b></li>
+</ul>
+
+<p>We check whether <tt>path</tt> is an absolute path, returning the answer
+as <tt>t</tt> or <tt>nil</tt>.  On Unix-like systems this essentially just
+means the path starts with a <tt>/</tt> character.  On Windows it means the
+path begins with a drive letter like <tt>c:\</tt> or a share name
+like <tt>\\mediabox\movies</tt>.  See
+also <a href="#relative-path-p">relative-path-p</a>.</p>
+
+<h5><a name="relative-path-p">(relative-path-p path [:config config]) &rarr; bool</a></h5>
+<ul>
+<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
+<li><tt>config</tt> is a <a href="#configuration">configuration</a> which
+defaults to <b>fileutils:*default-config*</b></li>
+</ul>
+
+<p>This is just the opposite
+of <a href="#absolute-path-p">absolute-path-p</a>.</p>
 
 
 
