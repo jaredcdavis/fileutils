@@ -57,8 +57,35 @@
       (error "~S: Expected clean ~S, but got ~S.~%"
              path clean (fileutils:clean-path path)))))
 
+(defun should-exist (path)
+  (unless (fileutils:path-exists-p path)
+    (error "~S: Expected path to exist.~%" path)))
+
+(defun should-not-exist (path)
+  (when (fileutils:path-exists-p path)
+    (error "~S: Expected path to not exist.~%" path)))
+
+(defvar *home* (fileutils:homedir))
+
+(defun test-path-exists ()
+  (should-exist "/")
+  (should-exist "Makefile")
+  (should-exist "./")
+  (should-exist "../")
+  (should-exist "./Makefile")
+  (should-exist "./../test/Makefile")
+  (should-exist *home*)
+  (should-exist (fileutils:catfile *home* ".fileutils-test-temp"))
+  (should-exist (fileutils:catfile *home* ".fileutils-test-temp/foo.txt"))
+  (should-exist (fileutils:catfile *home* ".fileutils-test-temp/bar.txt"))
+  (should-not-exist (fileutils:catfile *home* ".fileutils-test-temp/baz.txt"))
+  (should-not-exist "~")
+  (should-not-exist "~/.fileutils-test-temp")
+  (should-not-exist "~/.fileutils-test-temp/foo.txt"))
+
 (progn
   (loop for entry in *entries* do (check-entry entry))
+  (test-path-exists)
   (with-open-file (out "unix.ok"
                        :direction :output
                        :if-exists :supersede)

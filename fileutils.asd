@@ -39,5 +39,6 @@
   :license "MIT"
   :components ((:file "src/packages")
                (:file "src/strings")
-               (:file "src/paths")))
+               (:file "src/paths"))
+  :depends-on (#:osicat))
 

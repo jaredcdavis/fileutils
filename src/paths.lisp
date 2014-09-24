@@ -113,6 +113,63 @@
 
 
 
+
+(defun make-lisp-pathname-unix (x)
+  (declare (type string x))
+  (parse-namestring x))
+
+(defun path-exists-p-unix (x)
+  (declare (type string x))
+  (if (probe-file x)
+      t
+    nil))
+
+(defun path-exists-p-windows (x)
+  (declare (type string x))
+  (error "Implement path-exists-p on windows"))
+
+(defun path-exists-p (x &key (config *default-config*))
+  (check-type x string)
+  (check-type config config)
+  (let ((kind (config-kind config)))
+    (case kind
+      (:unix     (path-exists-p-unix x))
+      (:windows  (path-exists-p-windows x))
+      (otherwise (error "Unknown file system configuration ~a" kind)))))
+
+
+(defun homedir ()
+  ;; BOZO totally wrong for non-unix hosts
+  ;; probably even for unix
+  (osicat:environment-variable "HOME"))
+
+
+(defun catfile-unix (x y)
+  (declare (type string x y))
+  (let* ((xl (length x)))
+    (if (and (< 0 xl)
+             (eql (char x (- xl 1)) #\/))
+        ;; Already ends with a slash.
+        (concatenate 'string x y)
+      (concatenate 'string x "/" y))))
+
+(defun catfile-windows (x y)
+  (declare (type string x y))
+  (error "Implement catfile on windows."))
+
+(defun catfile (x y &key (config *default-config*))
+  (check-type x string)
+  (check-type y string)
+  (check-type config config)
+  (let ((kind (config-kind config)))
+    (case kind
+      (:unix     (catfile-unix x y))
+      (:windows  (catfile-windows x y))
+      (otherwise (error "Unknown file system configuration ~a" kind)))))
+
+
+
+
 #|| 
 
 ; perl file::spec

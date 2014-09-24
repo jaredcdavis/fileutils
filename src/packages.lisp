@@ -38,6 +38,9 @@
            #:*default-config*
            #:absolute-path-p
            #:clean-path
+           #:path-exists-p
+           #:homedir
+           #:catfile
            )
   )
 
