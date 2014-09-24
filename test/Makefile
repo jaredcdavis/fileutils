@@ -41,14 +41,14 @@ unix.spec : unix-paths.txt test-unix.pl
 
 all: unix.ok
 unix.ok : unix.spec test-unix.lsp
-	rm -f unix.ok
-	mkdir -p ~/.fileutils-test-temp
-	touch ~/.fileutils-test-temp/foo.txt
-	touch ~/.fileutils-test-temp/bar.txt
-	$(LISP) < test-unix.lsp
-	cat unix.ok
-	ls -l unix.ok
-	rm -rf ~/.fileutils-test-temp
+	@rm -f unix.ok
+	@mkdir -p ~/.fileutils-test-temp
+	@touch ~/.fileutils-test-temp/foo.txt
+	@touch ~/.fileutils-test-temp/bar.txt
+	@$(LISP) < test-unix.lsp
+	@cat unix.ok
+	@ls -l unix.ok
+	@rm -rf ~/.fileutils-test-temp
 
 clean:
 	rm -f unix.spec unix.ok

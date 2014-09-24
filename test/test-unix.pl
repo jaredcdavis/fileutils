@@ -43,6 +43,8 @@ if (@ARGV != 1) {
 my $INFILE = $ARGV[0];
 open(my $fd, $INFILE) or die("Can't open $INFILE: $!");
 
+my @paths = ();
+
 while (<$fd>) {
     my $path = $_;
     chomp($path);
@@ -51,8 +53,21 @@ while (<$fd>) {
     print " (:absolute-p . " . ($abs ? "T" : "NIL") . ")";
     my $clean = File::Spec::Unix->canonpath($path);
     print " (:clean . \"$clean\")";
+    my ($vol, $dir, $file) = File::Spec::Unix->splitpath($path);
+    print " (:split . (\"$vol\" \"$dir\" \"$file\"))";
     print ")\n";
+    push(@paths, $path);
 }
+
+# foreach my $p1 (@paths)
+# {
+#     foreach my $p2 (@paths)
+#     {
+# 	my $cat = File::Spec::Unix->catpath($p1, $p2
+#     }
+# }
+
+
 
 close($fd);
 

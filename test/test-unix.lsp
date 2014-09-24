@@ -47,7 +47,8 @@
 (defun check-entry (entry)
   (let ((path       (cdr (assoc :path entry)))
         (absolute-p (cdr (assoc :absolute-p entry)))
-        (clean      (cdr (assoc :clean entry))))
+        (clean      (cdr (assoc :clean entry)))
+        (split      (cdr (assoc :split entry))))
     (unless (stringp path)
       (error "Path isn't even a string? ~S" entry))
     (unless (equal absolute-p (fileutils:absolute-path-p path))
@@ -55,7 +56,19 @@
              path absolute-p (fileutils:absolute-path-p path)))
     (unless (equal clean (fileutils:clean-path path))
       (error "~S: Expected clean ~S, but got ~S.~%"
-             path clean (fileutils:clean-path path)))))
+             path clean (fileutils:clean-path path)))
+
+  (multiple-value-bind (vol dirs file)
+    (fileutils:split-path path)
+    (unless (equal vol (first split))
+      (error "~S: split-path: expected volume ~S, but got ~S.~%"
+             path vol (first split)))
+    (unless (equal dirs (second split))
+      (error "~S: split-path: expected dirs ~S, but got ~S.~%"
+             path dirs (second split)))
+    (unless (equal file (third split))
+      (error "~S: split-path: expected filename ~S, but got ~S.~%"
+             path file (third split))))))
 
 (defun should-exist (path)
   (unless (fileutils:path-exists-p path)
@@ -89,6 +102,6 @@
   (with-open-file (out "unix.ok"
                        :direction :output
                        :if-exists :supersede)
-    (format out "Checked ~a entries, all tests passed."
+    (format out "OK: Checked ~a entries and all tests passed.~%"
             (length *entries*))))
 

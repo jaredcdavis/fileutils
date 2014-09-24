@@ -37,11 +37,12 @@
   (:export #:make-config
            #:*default-config*
            #:absolute-path-p
+           #:relative-path-p
            #:clean-path
            #:path-exists-p
            #:homedir
            #:catfile
-           )
-  )
+           #:split-path
+           ))
 
 

@@ -64,8 +64,7 @@
     (and (< 1 xl)
          (eql (char x 1) ":"))))
 
-(defun absolute-path-p (x &key (config *default-config*))
-  ;; Public.
+(defun absolute-path-p (x &key (config *default-config*))  ;; Public
   (check-type x string)
   (check-type config config)
   (let ((kind (config-kind config)))
@@ -73,6 +72,10 @@
       (:unix     (absolute-path-p-unix x))
       (:windows  (absolute-path-p-windows x))
       (otherwise (error "Unknown file system configuration ~a" kind)))))
+
+(defun relative-path-p (x &key (config *default-config*))  ;; Public
+  (not (absolute-path-p x :config config)))
+
 
 (defun remove-leading-occurrences (lst x)
   (cond ((atom x)
@@ -88,9 +91,7 @@
       (let* ((parts (strtok x '(#\/)))
              (clean (remove "." parts :test 'equal))
              (clean (remove-leading-occurrences '("/" "..") clean)))
-        ;; bozo how to handle trailing slash?
         (concatenate 'string "/" (join clean "/")))
-    ;; Relative path
     (let* ((parts (strtok x '(#\/)))
            (clean (remove "." parts :test 'equal))
            (clean (if (atom clean)
@@ -102,7 +103,7 @@
   (declare (type string x))
   (error "Implement clean-path for windows."))
 
-(defun clean-path (x &key (config *default-config*))
+(defun clean-path (x &key (config *default-config*)) ;; Public
   (check-type x string)
   (check-type config config)
   (let ((kind (config-kind config)))
@@ -110,6 +111,35 @@
       (:unix     (clean-path-unix x))
       (:windows  (clean-path-windows x))
       (otherwise (error "Unknown file system configuration ~a" kind)))))
+
+;; ((:path . "/.") (:absolute-p . T) (:clean . "/") (:split . ("" "/." "")))
+(defun split-path-unix (x)
+  (declare (type string x))
+  (let* ((last-slash (strrpos "/" x)))
+    (if (not last-slash)
+        (values "" "" x)
+      (let* ((cutoff (+ 1 last-slash))
+             (pre    (subseq x 0 cutoff))
+             (post   (subseq x cutoff nil))
+             (special-case-p (or (equal post ".")
+                                 (equal post ".."))))
+        (if special-case-p
+            (values "" x "")
+          (values "" pre post))))))
+
+(defun split-path-windows
+  (declare (type string x))
+  (error "Implement split-path for windows"))
+
+(defun split-path (x &key (config *default-config*)) ;; Public
+  (check-type x string)
+  (check-type config config)
+  (let ((kind (config-kind config)))
+    (case kind
+      (:unix     (split-path-unix x))
+      (:windows  (split-path-windows x))
+      (otherwise (error "Unknown file system configuration ~a" kind)))))
+
 
 
 

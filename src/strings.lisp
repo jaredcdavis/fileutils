@@ -116,3 +116,45 @@
   ;; Example: (join '("a" "b" "c") ".") --> "a.b.c"
   (rchars-to-string (join-aux x separator nil)))
 
+
+
+
+
+(defun strprefixp-impl (x y xn yn xl yl)
+  (declare (type string x y)
+           (type fixnum xn yn xl yl))
+  (cond ((eql xn xl)
+         t)
+        ((eql yn yl)
+         nil)
+        ((eql (char x xn) (char y yn))
+         (strprefixp-impl x y
+                          (the fixnum (+ 1 xn))
+                          (the fixnum (+ 1 yn))
+                          xl yl))
+        (t
+         nil)))
+
+(declaim (inline strprefixp))
+(defun strprefixp (x y)
+  (declare (type string x y))
+  (strprefixp-impl x y 0 0 (length x) (length y)))
+
+
+(defun strrpos-fast (x y n xl yl)
+  (declare (type string x y)
+           (type fixnum n xl yl))
+  ;; N goes from YL to 0.
+  (cond ((strprefixp-impl x y 0 n xl yl)
+         n)
+        ((eql n 0)
+         nil)
+        (t
+         (strrpos-fast x y (the fixnum (- n 1)) xl yl))))
+
+(declaim (inline strrpos))
+(defun strrpos (x y)
+  (declare (type string x y))
+  (let ((yl (length y)))
+    (strrpos-fast x y yl (length x) yl)))
+
