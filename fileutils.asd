@@ -30,9 +30,9 @@
 ;
 ; Original author: Jared Davis <jared@kookamara.com>
 
-(in-package :asdf-user)
+;; (in-package :asdf-user) ;; This causes problems for clisp?
 
-#-(or ccl sbcl)
+#-(or ccl sbcl clisp)
 (error "Fileutils has not yet been ported to this Lisp; patches welcome.")
 
 (defsystem "fileutils"

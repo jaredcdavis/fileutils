@@ -70,9 +70,9 @@
     (:windows  (absolute-path-p-windows x))
     (otherwise (error "Unknown operating system ~S" os-kind))))
 
-
 (defun relative-path-p (x)
   (not (absolute-path-p x)))
+
 
 
 (defun remove-leading-occurrences (lst x)
@@ -165,45 +165,10 @@
     (otherwise
      (error "Unknown operating system ~a" os-kind))))
 
-
-(define-constant +path-kinds+
-  '(nil
-    :regular-file
-    :directory
-    :symbolic-link
-    :broken-symbolic-link
-    :pipe
-    :socket
-    :character-device
-    :block-device))
-
-(defun path-type (path)
-  (check-type path string)
-  (multiple-value-bind
-      (main-kind broken-p)
-      (osicat:file-kind (path-to-lisp path)
-                        :follow-symlinks t)
-    (cond ((and (eq main-kind :symbolic-link)
-                broken-p)
-           :broken-symbolic-link)
-          ((member main-kind +path-kinds+)
-           main-kind)
-          (t
-           (error "Unrecognized result from osicat:file-kind for ~S: ~S"
-                  path main-kind)))))
-
-(defun path-exists-p (path)
-  (check-type path string)
-  (if (path-type path)
-      t
-    nil))
-
-
 (defun homedir ()
   ;; BOZO totally wrong for non-unix hosts
   ;; probably even for unix
   (osicat:environment-variable "HOME"))
-
 
 (defun catfile-unix (x y)
   (declare (type string x y))
@@ -226,3 +191,47 @@
     (:windows  (catfile-windows x y))
     (otherwise (error "Unknown operating system ~S" os-kind))))
 
+
+
+
+
+
+(define-constant +path-kinds+
+  '(nil
+    :regular-file
+    :directory
+    :symbolic-link
+    :broken-symbolic-link
+    :pipe
+    :socket
+    :character-device
+    :block-device))
+
+(defun path-type (path &key follow-symlinks)
+  (check-type path string)
+  (multiple-value-bind
+      (main-kind broken-p)
+      (osicat:file-kind (path-to-lisp path)
+                        :follow-symlinks follow-symlinks)
+    (cond ((and (eq main-kind :symbolic-link)
+                broken-p)
+           :broken-symbolic-link)
+          ((member main-kind +path-kinds+)
+           main-kind)
+          (t
+           (error "Unrecognized result from osicat:file-kind for ~S: ~S"
+                  path main-kind)))))
+
+(defun path-exists-p (path)
+  (check-type path string)
+  (if (path-type path)
+      t
+    nil))
+
+(defun regular-file-p (path)
+  (check-type path string)
+  (eq (path-type path) :regular-file))
+
+(defun directory-p (path)
+  (check-type path string)
+  (eq (path-type path) :directory))
