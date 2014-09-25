@@ -44,6 +44,7 @@
            #:catfile
            #:split-path
            #:path-type
+           #:path-to-lisp
            ))
 
 

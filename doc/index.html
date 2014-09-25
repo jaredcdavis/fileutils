@@ -63,19 +63,6 @@ BOZO.</p>
 
 <h2><a name="definitions">Definitions</a></h2>
 
-<h5><a name="configuration">Configuration</a></h5>
-
-<p>Many Fileutils can optionally accept a <b>config</b> argument that governs
-their behavior.  For instance, the <tt>absolute-path-p</tt> function can be
-configured to act like a Unix system or a Windows system.</p>
-
-<p>By default all such Fileutils functions read their configuration from
-<b>fileutils:*default-config*</b>, which is automatically initialized when
-fileutils is loaded as is appropriate for the host.</p>
-
-<p>BOZO describe configuration objects and what can be controlled.</p>
-
-
 <h5><a name="vanillapath">Vanilla Path</a></h5>
 
 <p>Many Fileutils functions accept <b>vanilla path</b> arguments.  A vanilla
@@ -122,6 +109,24 @@ defaults to <b>fileutils:*default-config*</b></li>
 
 <p>This is just the opposite
 of <a href="#absolute-path-p">absolute-path-p</a>.</p>
+
+
+
+<h5>(path-to-lisp path) &rarr; lisp-pathname</h5>
+<ul>
+<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
+</ul>
+
+<p>We translate <tt>path</tt>, a vanilla path, into a Common Lisp
+<tt>pathname</tt> object.</p>
+
+<p>Many Common Lisp functions, such as <tt>open</tt> and <tt>compile-file</tt>,
+take <i>pathname</i> arguments.  Unfortunately the details of these objects
+vary from Lisp to Lisp.</p>
+
+<p>The goal of <tt>path-to-lisp</tt> is to avoid these implementation-specific
+interpretations of path names, especially with respect to characters
+like <tt>~</tt> and <tt>*</tt>.</p>
 
 
 <h5>(path-exists-p path [:follow-symlinks bool]) &rarr; bool</h5>
