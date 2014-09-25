@@ -70,31 +70,48 @@
       (error "~S: split-path: expected filename ~S, but got ~S.~%"
              path file (third split))))))
 
-(defun should-exist (path)
-  (unless (fileutils:path-exists-p path)
-    (error "~S: Expected path to exist.~%" path)))
+(defun should-exist (paths)
+  (loop for path in paths do
+        (unless (fileutils:path-exists-p path)
+          (error "~S: Expected path to exist.~%" path))))
 
-(defun should-not-exist (path)
-  (when (fileutils:path-exists-p path)
-    (error "~S: Expected path to not exist.~%" path)))
+(defun should-not-exist (paths)
+  (loop for path in paths do
+        (when (fileutils:path-exists-p path)
+          (error "~S: Expected path to not exist.~%" path))))
 
-(defvar *home* (fileutils:homedir))
+(defvar *home*    (fileutils:homedir))
+(defvar *testdir* (fileutils:catfile *home* ".fileutils-test-temp"))
 
 (defun test-path-exists ()
-  (should-exist "/")
-  (should-exist "Makefile")
-  (should-exist "./")
-  (should-exist "../")
-  (should-exist "./Makefile")
-  (should-exist "./../test/Makefile")
-  (should-exist *home*)
-  (should-exist (fileutils:catfile *home* ".fileutils-test-temp"))
-  (should-exist (fileutils:catfile *home* ".fileutils-test-temp/foo.txt"))
-  (should-exist (fileutils:catfile *home* ".fileutils-test-temp/bar.txt"))
-  (should-not-exist (fileutils:catfile *home* ".fileutils-test-temp/baz.txt"))
-  (should-not-exist "~")
-  (should-not-exist "~/.fileutils-test-temp")
-  (should-not-exist "~/.fileutils-test-temp/foo.txt"))
+  (should-exist
+   (list "/"
+         "Makefile"
+         "./"
+         "../"
+         "./Makefile"
+         "./../test/Makefile"
+         *home*
+         (fileutils:catfile *home* ".fileutils-test-temp")
+         (fileutils:catfile *home* ".fileutils-test-temp/")
+         (fileutils:catfile *testdir* "foo.txt")
+         (fileutils:catfile *testdir* "bar.txt")
+         (fileutils:catfile *testdir* ".emacs")
+         (fileutils:catfile *testdir* "silly.")
+         (fileutils:catfile *testdir* ".hiddendir")
+         (fileutils:catfile *testdir* ".hiddendir/")
+         (fileutils:catfile *testdir* "sillydir.")
+         (fileutils:catfile *testdir* "sillydir./")
+         (fileutils:catfile *testdir* "..")
+         (fileutils:catfile *testdir* "../.fileutils-test-temp")
+         ))
+
+  (should-not-exist
+   (list
+    (fileutils:catfile *testdir* "baz.txt")
+    "~"
+    "~/.fileutils-test-temp"
+    "~/.fileutils-test-temp/foo.txt")))
 
 (progn
   (loop for entry in *entries* do (check-entry entry))

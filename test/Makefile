@@ -39,16 +39,23 @@ all: unix.spec
 unix.spec : unix-paths.txt test-unix.pl
 	./test-unix.pl unix-paths.txt > unix.spec
 
+TESTDIR := ~/.fileutils-test-temp
+
 all: unix.ok
 unix.ok : unix.spec test-unix.lsp
 	@rm -f unix.ok
-	@mkdir -p ~/.fileutils-test-temp
-	@touch ~/.fileutils-test-temp/foo.txt
-	@touch ~/.fileutils-test-temp/bar.txt
+	@rm -rf $(TESTDIR)
+	@mkdir -p $(TESTDIR)
+	@touch $(TESTDIR)/foo.txt
+	@touch $(TESTDIR)/bar.txt
+	@touch $(TESTDIR)/.emacs
+	@touch $(TESTDIR)/silly.
+	@mkdir $(TESTDIR)/.hiddendir
+	@mkdir $(TESTDIR)/sillydir.
 	@$(LISP) < test-unix.lsp
 	@cat unix.ok
 	@ls -l unix.ok
-	@rm -rf ~/.fileutils-test-temp
+	@rm -rf $(TESTDIR)
 
 clean:
 	rm -f unix.spec unix.ok
