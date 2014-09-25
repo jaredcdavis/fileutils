@@ -196,7 +196,7 @@
      (error "Unknown operating system ~a" os-kind))))
 
 
-(define-constant path-kinds
+(define-constant +path-kinds+
   '(nil
     :regular-file
     :directory
@@ -216,7 +216,7 @@
     (cond ((and (eq main-kind :symbolic-link)
                 broken-p)
            :broken-symbolic-link)
-          ((member main-kind path-kinds)
+          ((member main-kind +path-kinds+)
            main-kind)
           (t
            (error "Unrecognized result from osicat:file-kind for ~S: ~S"
