@@ -32,7 +32,7 @@
 
 (in-package :asdf-user)
 
-#-(or ccl)
+#-(or ccl sbcl)
 (error "Fileutils has not yet been ported to this Lisp; patches welcome.")
 
 (defsystem "fileutils"

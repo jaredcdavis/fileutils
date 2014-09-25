@@ -32,6 +32,12 @@
 
 (in-package "FILEUTILS")
 
+(defmacro define-constant (name value &optional doc)
+  ;; Stupid macro to avoid having defconstant forms evaluated more than once,
+  ;; which I guess is technically illegal and causes problems on SBCL.
+  `(defconstant ,name (if (boundp ',name) (symbol-value ',name) ,value)
+     ,@(when doc (list doc))))
+
 (defconstant os-kind
   ;; These features should be correctly configured by the trivial-features
   ;; library.
@@ -142,7 +148,7 @@
             (values "" x "")
           (values "" pre post))))))
 
-(defun split-path-windows
+(defun split-path-windows (x)
   (declare (type string x))
   (error "Implement split-path for windows"))
 
@@ -190,8 +196,7 @@
      (error "Unknown operating system ~a" os-kind))))
 
 
-
-(defconstant path-kinds
+(define-constant path-kinds
   '(nil
     :regular-file
     :directory
