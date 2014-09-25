@@ -32,6 +32,18 @@
 
 (in-package "FILEUTILS")
 
+(defconstant os-kind
+  ;; These features should be correctly configured by the trivial-features
+  ;; library.
+  #+windows :windows
+  #+unix    :unix
+  #+(and (not windows) (not unix))
+  (error "Unrecognied host operating system."))
+
+;; (defconstant get-os
+;;   #+unix :unix
+;;   #+(and (not unix) mswindows 
+
 (defstruct config
   ;; Kind of file system we are working with.
 
@@ -40,11 +52,14 @@
    ;; Governs:
    ;;   - Do we look for volumes like C:\
    ;;   - What are the valid directory separators (windows: \ and /; unix: /)
-   :unix)
+   os-kind)
 
   (case-sensitive-p
    ;; T or NIL
-   t))
+   t)
+
+  ;; BOZO other kinds of stuff?
+  )
 
 (defvar *default-config*
   (make-config))
@@ -144,28 +159,69 @@
 
 
 
-(defun make-lisp-pathname-unix (x)
-  (declare (type string x))
-  (parse-namestring x))
 
-(defun path-exists-p-unix (x)
-  (declare (type string x))
-  (if (probe-file x)
+(defun make-lisp-pathname-unix (path)
+  (declare (type string path))
+  ;; Horrible, nasty, probably CCL-specific code to translate a vanilla path
+  ;; into a Lisp pathname that can be given to Lisp functions.
+  (let* ((path  (clean-path-unix path))
+         (parts (strtok path '(#\/)))
+         (fixup (substitute :up ".." parts))
+         (kind  (if (absolute-path-p-unix path)
+                    :absolute
+                  :relative))
+         (final (last fixup)))
+    (if (equal final :up)
+        (make-pathname :directory (cons kind fixup)
+                       :name nil)
+      (make-pathname :directory (cons kind (butlast fixup 1))
+                     :name (car (last fixup))))))
+
+(defun make-lisp-pathname-windows (path)
+  (declare (type string path))
+  (error "Implement make-lisp-pathname-windows."))
+
+(defun make-lisp-pathname (path)
+  (check-type path string)
+  (case os-kind
+    (:unix    (make-lisp-pathname-unix path))
+    (:windows (make-lisp-pathname-windows path))
+    (otherwise
+     (error "Unknown operating system ~a" os-kind))))
+
+
+
+(defconstant path-kinds
+  '(nil
+    :regular-file
+    :directory
+    :symbolic-link
+    :broken-symbolic-link
+    :pipe
+    :socket
+    :character-device
+    :block-device))
+
+(defun path-type (path)
+  (check-type path string)
+  (multiple-value-bind
+      (main-kind broken-p)
+      (osicat:file-kind (make-lisp-pathname-unix path)
+                        :follow-symlinks t)
+    (cond ((and (eq main-kind :symbolic-link)
+                broken-p)
+           :broken-symbolic-link)
+          ((member main-kind path-kinds)
+           main-kind)
+          (t
+           (error "Unrecognized result from osicat:file-kind for ~S: ~S"
+                  path main-kind)))))
+
+(defun path-exists-p (path)
+  (check-type path string)
+  (if (path-type path)
       t
     nil))
-
-(defun path-exists-p-windows (x)
-  (declare (type string x))
-  (error "Implement path-exists-p on windows"))
-
-(defun path-exists-p (x &key (config *default-config*))
-  (check-type x string)
-  (check-type config config)
-  (let ((kind (config-kind config)))
-    (case kind
-      (:unix     (path-exists-p-unix x))
-      (:windows  (path-exists-p-windows x))
-      (otherwise (error "Unknown file system configuration ~a" kind)))))
 
 
 (defun homedir ()

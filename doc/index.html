@@ -124,6 +124,29 @@ defaults to <b>fileutils:*default-config*</b></li>
 of <a href="#absolute-path-p">absolute-path-p</a>.</p>
 
 
+<h5>(path-exists-p path [:follow-symlinks bool]) &rarr; bool</h5>
+
+<ul>
+<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
+<li><tt>follow-symlinks</tt> defaults to <b>t</b>
+</ul>
+
+<p>We check whether <tt>path</tt> exists on the current file system.</p>
+
+<p>Symbolic links are a special case.  Aside from symbolic links, existence has
+nothing to do with the kind of file that <tt>path</tt> points to.  For
+instance, on a Unix-like system, <tt>path-exists-p</tt> could presumably return
+true for ordinary files like <tt>"/home/jared/hello.txt"</tt>, directories
+like <tt>"/"</tt>, special devices like <tt>"/dev/null"</tt>, and esoteric
+files like sockets and pipes.</p>
+
+<p>Legitimate symbolic links (those that eventually refer to an existing file)
+are always considered to exist.</p>
+
+<p>By default, <tt>follow-symlinks</tt> is <b>t</b> and, in this case, broken
+symbolic links are not considered to be files that exist.</p>
+
+<p>BOZO would it make sense for this to take a config?</p>
 
 
 </body>

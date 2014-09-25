@@ -43,6 +43,7 @@
            #:homedir
            #:catfile
            #:split-path
+           #:path-type
            ))
 
 

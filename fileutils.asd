@@ -32,6 +32,9 @@
 
 (in-package :asdf-user)
 
+#-(or ccl)
+(error "Fileutils has not yet been ported to this Lisp; patches welcome.")
+
 (defsystem "fileutils"
   :description "A library for working with the unix and windows file systems."
   :version "0.0.1"
@@ -40,5 +43,6 @@
   :components ((:file "src/packages")
                (:file "src/strings")
                (:file "src/paths"))
-  :depends-on (#:osicat))
+  :depends-on (#:trivial-features
+               #:osicat))
 
