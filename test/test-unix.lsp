@@ -33,7 +33,10 @@
 (in-package "CL-USER")
 (ql:quickload "fileutils")
 
-(defun read-entries (stream)
+(defmacro defunc (&rest args)
+  `(compile (defun . ,args)))
+
+(defunc read-entries (stream)
   (let ((entry1 (read stream nil nil)))
     (if (not entry1)
         nil
@@ -44,7 +47,7 @@
   (with-open-file (in "unix.spec")
     (read-entries in)))
 
-(defun check-entry (entry)
+(defunc check-entry (entry)
   (let ((path       (cdr (assoc :path entry)))
         (absolute-p (cdr (assoc :absolute-p entry)))
         (clean      (cdr (assoc :clean entry)))
@@ -70,13 +73,13 @@
       (error "~S: split-path: expected filename ~S, but got ~S.~%"
              path file (third split))))))
 
-(defun should-exist (paths)
+(defunc should-exist (paths)
   (loop for path in paths do
         (format t "Should exist: ~S~%" path)
         (unless (fileutils:path-exists-p path)
           (error "~S: Expected path to exist.~%" path))))
 
-(defun should-not-exist (paths)
+(defunc should-not-exist (paths)
   (loop for path in paths do
         (format t "Should not exist: ~S~%" path)
         (when (fileutils:path-exists-p path)
@@ -85,7 +88,7 @@
 (defvar *home*    (fileutils:homedir))
 (defvar *testdir* (fileutils:catfile *home* ".fileutils-test-temp"))
 
-(defun test-path-exists ()
+(defunc test-path-exists ()
   (should-exist
    (list "/"
          "Makefile"
@@ -115,12 +118,16 @@
     "~/.fileutils-test-temp"
     "~/.fileutils-test-temp/foo.txt")))
 
-(progn
+(defunc tests-top ()
+  (format t "Starting tests.~%")
   (loop for entry in *entries* do (check-entry entry))
   (test-path-exists)
+  (format t "All tests passed, writing .ok file.~%")
   (with-open-file (out "unix.ok"
                        :direction :output
                        :if-exists :supersede)
-    (format out "OK: Checked ~a entries and all tests passed.~%"
-            (length *entries*))))
+                  (format out "OK: Checked ~a entries and all tests passed.~%"
+                          (length *entries*))))
+
+(tests-top)
 
