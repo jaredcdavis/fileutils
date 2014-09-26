@@ -209,6 +209,9 @@
 
 (defun path-type (path &key follow-symlinks)
   (check-type path string)
+  #+allegro
+  (error "fileutils:path-type doesn't work on allegro currently; see
+          https://github.com/osicat/osicat/issues/2 for possible updates")
   (multiple-value-bind
       (main-kind broken-p)
       (osicat:file-kind (path-to-lisp path)

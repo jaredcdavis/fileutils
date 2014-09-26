@@ -72,11 +72,13 @@
 
 (defun should-exist (paths)
   (loop for path in paths do
+        (format t "Should exist: ~S~%" path)
         (unless (fileutils:path-exists-p path)
           (error "~S: Expected path to exist.~%" path))))
 
 (defun should-not-exist (paths)
   (loop for path in paths do
+        (format t "Should not exist: ~S~%" path)
         (when (fileutils:path-exists-p path)
           (error "~S: Expected path to not exist.~%" path))))
 

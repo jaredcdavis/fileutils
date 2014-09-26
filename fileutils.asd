@@ -32,7 +32,7 @@
 
 ;; (in-package :asdf-user) ;; This causes problems for clisp?
 
-#-(or ccl sbcl clisp)
+#-(or ccl sbcl clisp allegro)
 (error "Fileutils has not yet been ported to this Lisp; patches welcome.")
 
 (defsystem "fileutils"
