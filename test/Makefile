@@ -30,8 +30,6 @@
 #
 # Original author: Jared Davis <jared@kookamara.com>
 
-LISP ?= ccl
-
 .PHONY: all clean
 all:
 
