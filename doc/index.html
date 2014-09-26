@@ -85,72 +85,154 @@ the terminal as <tt>'./~jared/foo.txt'</tt>.</p>
 
 <h2><a name="pathname">Path Name Functions</a></h2>
 
-<h5><a name="absolute-path-p">(absolute-path-p path [:config config]) &rarr; bool</a></h5>
-<ul>
-<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
-<li><tt>config</tt> is a <a href="#configuration">configuration</a> which
-defaults to <b>fileutils:*default-config*</b></li>
-</ul>
+<div class="fn">
+<h5><a name="absolute-path-p">(absolute-path-p path) &rarr; bool</a></h5>
 
-<p>We check whether <tt>path</tt> is an absolute path, returning the answer
-as <tt>t</tt> or <tt>nil</tt>.  On Unix-like systems this essentially just
-means the path starts with a <tt>/</tt> character.  On Windows it means the
-path begins with a drive letter like <tt>c:\</tt> or a share name
-like <tt>\\mediabox\movies</tt>.  See
-also <a href="#relative-path-p">relative-path-p</a>.</p>
+<p>The <tt>path</tt> is a <a href="#vanillapath">vanilla path</a>.  We check
+whether it is an absolute path, returning the answer as <tt>t</tt>
+or <tt>nil</tt>.  On Unix-like systems this essentially just means the path
+starts with a <tt>/</tt> character.  On Windows it means the path begins with a
+drive letter like <tt>c:\</tt> or a share name like <tt>\\mediabox\movies</tt>.
+See also <a href="#relative-path-p">relative-path-p</a>.</p>
 
-<h5><a name="relative-path-p">(relative-path-p path [:config config]) &rarr; bool</a></h5>
-<ul>
-<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
-<li><tt>config</tt> is a <a href="#configuration">configuration</a> which
-defaults to <b>fileutils:*default-config*</b></li>
-</ul>
+<div class="examples">
+<p>Examples (Unix-like systems):</p>
+<pre>
+ (absolute-path-p "/usr/bin/banana") ;; t
+ (absolute-path-p "books")           ;; nil
+</pre>
 
-<p>This is just the opposite
-of <a href="#absolute-path-p">absolute-path-p</a>.</p>
+<p>Examples (Windows systems):</p>
+<pre>
+ (absolute-path-p "c:\\windows") ;; t
+ (absolute-path-p "books")       ;; nil
+</pre>
+</div>
+
+<p>This is entirely a string-based check that does not consult the file system,
+network, etc.  Accordingly, whether a path is absolute or relative says nothing
+about whether it exists, can be read or written, etc.</p>
+</div>
 
 
+<div class="fn">
+<h5>(path-exists-p path) &rarr; bool</h5>
 
+<p>The <tt>path</tt> is a <a href="#vanillapath">vanilla path</a>.  We check
+whether <tt>path</tt> exists on the current file system.  See
+also <a href="#path-type">path-type</a>.</p>
+
+<div class="examples">
+<p>Examples (Unix-like systems):</p>
+<pre>
+ (path-exists-p "/usr/bin/")        ;; probably t
+ (path-exists-p "newt-recipes.txt") ;; probably nil
+</pre>
+
+<p>Examples (Windows systems):</p>
+<pre>
+ (path-exists-p "c:\\windows")                ;; probably t
+ (path-exists-p "books\\snake-wrangling.pdf") ;; probably nil
+</pre>
+</div>
+
+<p>Whether a path exists says nothing about what kind of path it is.  For
+instance, on a Unix-like system, <tt>path-exists-p</tt> will return true for
+ordinary files, directories, special devices like <tt>"/dev/null"</tt>, and
+esoteric files like sockets and pipes.  Moreover, we say that symbolic links
+exist even when they are broken.</p>
+
+
+</div>
+
+<div class="fn">
 <h5>(path-to-lisp path) &rarr; lisp-pathname</h5>
-<ul>
-<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
-</ul>
 
-<p>We translate <tt>path</tt>, a vanilla path, into a Common Lisp
-<tt>pathname</tt> object.</p>
+<p>The <tt>path</tt> is a <a href="#vanillapath">vanilla path</a>.  We create,
+from <tt>path</tt>, a corresponding Common Lisp
+<a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/19_b.htm">pathname object</a>.</p>
 
 <p>Many Common Lisp functions, such as <tt>open</tt> and <tt>compile-file</tt>,
-take <i>pathname</i> arguments.  Unfortunately the details of these objects
-vary from Lisp to Lisp.</p>
+take <i>pathspec</i> arguments which are either pathnames or strings.  These
+path names are normally constructed with functions like
 
-<p>The goal of <tt>path-to-lisp</tt> is to avoid these implementation-specific
-interpretations of path names, especially with respect to characters
-like <tt>~</tt> and <tt>*</tt>.</p>
+Common Lisp's
+<a href='http://www.lispworks.com/documentation/lw50/CLHS/Body/f_pn.htm'>pathname</a>,
+
+or Lisp-specific variants such as
+CCL's
+<a href='http://ccl.clozure.com/ccl-documentation.html#f_native-translated-namestring'>ccl:native-translated-namestring</a>,
+
+CMUCL's <tt>ext:unix-namestring</tt>, or
+
+SBCL's <a href="http://sbcl.org/manual/index.html#Native-Filenames">parse-native-namestring</a>, etc., or
+
+with wrapper libraries like <tt>uiop:parse-native-namestring</tt>.  These
+approaches are generally implementation dependent.  They especially vary around
+the edge-cases, e.g., characters like <tt>~</tt>, <tt>:</tt>, <tt>*</tt>,
+etc.</p>
+
+<p>The goal of <tt>path-to-lisp</tt> is to avoid all of this and to provide a
+consistent way to interpret vanilla paths for all Lisps on the same platform
+(e.g., Unix-like systems or Windows).</p>
+
+<p>The <tt>pathname</tt> object that is created by <tt>path-to-lisp</tt> can
+then given to functions like <tt>open</tt>.</p>
+</div>
 
 
-<h5>(path-exists-p path [:follow-symlinks bool]) &rarr; bool</h5>
 
-<ul>
-<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
-<li><tt>follow-symlinks</tt> defaults to <b>t</b>
-</ul>
+<div class="fn">
+<h5>(path-type path [:follow-symlinks bool]) &rarr; kind</h5>
 
-<p>We check whether <tt>path</tt> exists on the current file system.</p>
+<p>The <tt>path</tt> is a <a href="#vanillapath">vanilla path</a>.  We
+determine what kind of path it is and return a symbol.  The possible return
+values are listed in the constant <tt>+path-kinds+</tt>.</p>
 
-<p>Symbolic links are a special case.  Aside from symbolic links, existence has
-nothing to do with the kind of file that <tt>path</tt> points to.  For
-instance, on a Unix-like system, <tt>path-exists-p</tt> could presumably return
-true for ordinary files like <tt>"/home/jared/hello.txt"</tt>, directories
-like <tt>"/"</tt>, special devices like <tt>"/dev/null"</tt>, and esoteric
-files like sockets and pipes.</p>
 
-<p>Legitimate symbolic links (those that eventually refer to an existing file)
-are always considered to exist.</p>
+<div class="examples">
+<p>Examples (Unix-like systems):</p>
+<pre>
+ (path-type "/usr/local/bin")  ;; :directory
+ (path-type "/bin/ls")         ;; :regular-file
+</pre>
+</div>
 
-<p>By default, <tt>follow-symlinks</tt> is <b>t</b> and, in this case, broken
-symbolic links are not considered to be files that exist.</p>
+<p>BOZO explain what can happen, how symlinks are handled, meaning of symbolic
+links.</p>
 
-<p>BOZO would it make sense for this to take a config?</p>
+</div>
+
+
+
+
+<div class="fn">
+<h5><a name="relative-path-p">(relative-path-p path) &rarr; bool</a></h5>
+
+<p>The <tt>path</tt> is a <a href="#vanillapath">vanilla path</a>.  We check
+whether it is an absolute path, returning the answer as <tt>t</tt>
+or <tt>nil</tt>.</p>
+
+<div class="examples">
+<p>Examples (Unix-like systems):</p>
+
+<pre>
+ (relative-path-p "/usr/local/bin")  ;; nil
+ (relative-path-p "books/spec.pdf")  ;; t
+</pre>
+
+<p>Examples (Windows systems):</p>
+
+<pre>
+ (relative-path-p "c:\\windows")  ;; nil
+ (relative-path-p "games\\quake") ;; t
+</pre>
+</div>
+
+<p>This is just the opposite
+of <a href="#absolute-path-p">absolute-path-p</a>; see its description
+for more details.</p>
+</div>
 
 
 </body>

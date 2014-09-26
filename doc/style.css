@@ -65,11 +65,19 @@ h4,h5 {
     margin-left: 2em;
 }
 
-p, ul {
+p, ul, pre {
     margin-left: 3em;
     margin-right: 3em;
 }
 
 h5 {
     font-size: 110%;
+}
+
+.examples p {
+    font-style: italic;
+}
+
+.fn {
+  border-top: 2px solid #f0f0f0;
 }
