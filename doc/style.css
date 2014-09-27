@@ -81,3 +81,11 @@ h5 {
 .fn {
   border-top: 2px solid #f0f0f0;
 }
+
+.long li+li {
+    margin-top: 1em;
+}
+
+.bozo {
+    color: #660000;
+}

@@ -45,43 +45,62 @@ Original author: Jared Davis <jared@kookamara.com>
 
 <h1>Fileutils Library</h1>
 
-<p>Fileutils is a library of file-system related functions for Common Lisp.  It
-is meant to be portable across Unix-like and Windows file systems and across
-Lisp implementations.</p>
+<p>Fileutils is a small library of file-system related functions for
+Common Lisp.  It is meant to be portable across Unix-like and Windows
+file systems and across Lisp implementations.</p>
 
 <p>Fileutils avoids the Common Lisp <i>pathname</i> functionality (which
 differs across Lisp implementations), and instead provides an API where paths
 are represented as ordinary strings.</p>
 
 
+<p><span class="bozo">BOZO quick start guide that notes these are in
+the fileutils package.</bozo></p>
+
 <h2>Installation</h2>
 
-<p>Note: Installation instructions are not covered here.  Instead, see
-BOZO.</p>
+<p><span class="bozo">BOZO installation instructions are not covered
+here.</span></p>
 
 
 <h2><a name="definitions">Definitions</a></h2>
 
 <h5><a name="vanillapath">Vanilla Path</a></h5>
 
-<p>Many Fileutils functions accept <b>vanilla path</b> arguments.  A vanilla
-path is an ordinary Common Lisp strings that should generally indicate a single
+<p>Many Fileutils functions accept <b>vanilla path</b> arguments.  A
+vanilla path is an ordinary Common Lisp string that indicates a single
 file or directory.</p>
 
-<p>Characters like <b>*</b> and <b>?</b>, which are given special
-interpretation in many shells, have no special meaning in vanilla paths.  That
-is, a vanilla path such as <tt>"foo/*.txt"</tt> does <b>not</b> refer to all of
-the files in <tt>foo/</tt> that end with <tt>.txt</tt>; instead, it refers to a
-single file whose name might have to be written using quotes
-like <tt>'foo/*.txt'</tt> to avoid wildcard expansion in most shells.</p>
+<p>We use the word <i>vanilla</i> to emphasize that these are a very
+basic kind of path, lacking certain bells and whistles that you might
+expect if you're used to working with paths in a shell-scripting
+environment.  For instance...</p>
 
-<p>The <b>~</b> character, which expands to user home directories on most
-shells, also has no special meaning in a vanilla path.  That is, a vanilla path
-such as <tt>"~jared/foo.txt"</tt> does not refer to <tt>foo.txt</tt> in my home
-directory, but instead referse to a single file whose name might be written at
-the terminal as <tt>'./~jared/foo.txt'</tt>.</p>
+<ul class="long">
 
+<li>Characters like <b>*</b> and <b>?</b>, which are given special
+interpretation in many shells, have no special meaning in vanilla
+paths.  That is, a vanilla path such as <tt>"foo/*.txt"</tt>
+does <b>not</b> refer to all of the files in <tt>foo/</tt> that end
+with <tt>.txt</tt>; instead, it refers to a single file whose name
+might have to be written using quotes like <tt>'foo/*.txt'</tt> to
+avoid wildcard expansion in most shells.</li>
 
+<li>The <b>~</b> character, which expands to user home directories on
+most shells, also has no special meaning in a vanilla path.  That is,
+a vanilla path such as <tt>"~jared/foo.txt"</tt> does not refer
+to <tt>foo.txt</tt> in my home directory, but instead referse to a
+single file whose name might be written at the terminal
+as <tt>'./~jared/foo.txt'</tt>.</li>
+
+</ul>
+
+<p>Vanilla paths are a good basis for back-end tools that are to deal
+with file names, but there are some consequences.  To write robust
+code, you may need to escape these file names when invoking external
+programs.  <span class="bozo">BOZO Eventually implement and mention
+tools built on top of vanilla paths, e.g., native path translation,
+file globbing.</span></p>
 
 <h2><a name="pathname">Path Name Functions</a></h2>
 
@@ -233,6 +252,36 @@ or <tt>nil</tt>.</p>
 of <a href="#absolute-path-p">absolute-path-p</a>; see its description
 for more details.</p>
 </div>
+
+<h5><a name="clean-path">(clean-path path [:config config]) &rarr; new-path</h5>
+<ul>
+<li><tt>path</tt> is a <a href="#vanillapath">vanilla path</a></li>
+<li><tt>config</tt> is a <a href="#configuration">configuration</a> which
+defaults to <b>fileutils:*default-config*</b></li>
+</ul>
+
+<p>We return a new vanilla path which is logically equivalent to the
+input path, but may be nicer looking.  For instance, on a Unix-like
+system, this will make cleanups such as:</p>
+
+<ul>
+<li><tt>"///foo//bar"</tt> &rarr; <tt>"/foo/bar"</tt></li>
+<li><tt>"foo/bar/"</tt>  &rarr; <tt>"foo/bar"</tt></li>
+<li><tt>"foo/./bar"</tt> &rarr; <tt>"foo/bar"</tt></li>
+</ul>
+
+<p>Corner case.  You may find it surprising that (on Unix-like
+systems) this does not clean up paths such as <tt>"foo/../bar"</tt>
+into just <tt>bar</tt>.  Doing so could change the meaning of the path
+when symlinks are involved.</p>
+
+<p>This function is styled after
+Perl's <a href="http://perldoc.perl.org/File/Spec.html#canonpath">File::Spec-&gt;canonpath</a>.
+It is somewhat similar to
+Python's <a href="https://docs.python.org/2/library/os.path.html#os.path.normpath">os.path.normpath</a>,
+except that normpath canonicalizes <tt>..</tt> path components, which
+may be wrong when symlinks are involved.</p>
+
 
 
 </body>
