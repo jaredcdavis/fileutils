@@ -91,3 +91,4 @@
                   (format out "OK: Everything seems fine.~%")))
 
 (tests-top)
+(uiop:quit)

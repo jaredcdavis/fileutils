@@ -84,4 +84,5 @@
                           (length *entries*))))
 
 (tests-top)
+(uiop:quit)
 
