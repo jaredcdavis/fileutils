@@ -41,11 +41,18 @@ all: paths1.spec
 paths1.spec : paths1.txt paths1.pl
 	./paths1.pl paths1.txt > paths1.spec
 
-TESTDIR := ~/.fileutils-test-temp
-
 all: paths1.ok
 paths1.ok : paths1.spec paths1.lisp
 	@rm -f paths1.ok
+	@$(LISP) < paths1.lisp
+	@cat paths1.ok
+	@ls -l paths1.ok
+	@rm -rf $(TESTDIR)
+
+TESTDIR := ~/.fileutils-test-temp
+
+all: paths2.ok
+paths2.ok : paths2.lisp
 	@rm -rf $(TESTDIR)
 	@mkdir -p $(TESTDIR)
 	@touch $(TESTDIR)/foo.txt
@@ -54,10 +61,10 @@ paths1.ok : paths1.spec paths1.lisp
 	@touch $(TESTDIR)/silly.
 	@mkdir $(TESTDIR)/.hiddendir
 	@mkdir $(TESTDIR)/sillydir.
-	@$(LISP) < paths1.lisp
-	@cat paths1.ok
-	@ls -l paths1.ok
+	@$(LISP) < paths2.lisp
+	@cat paths2.ok
+	@ls -l paths2.ok
 	@rm -rf $(TESTDIR)
 
 clean:
-	rm -f paths1.spec paths1.ok
+	rm -f paths1.spec *.ok

@@ -5,7 +5,7 @@ Fileutils has (or rather, will eventually have) a fairly elaborate
 test suite.
 
 
-## Unix
+## Unix, Linux, BSD, Darwin
 
 For Unix-like operating systems, you can run the tests by going into
 the `unix` directory and then running
