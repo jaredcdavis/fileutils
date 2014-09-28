@@ -1,5 +1,3 @@
-#!/usr/bin/env perl
-
 # Fileutils -- A Common Lisp File Utilities Library
 # Copyright (C) 2014 Kookamara LLC
 #
@@ -32,42 +30,34 @@
 #
 # Original author: Jared Davis <jared@kookamara.com>
 
-use warnings;
-use strict;
-use File::Spec::Unix;
+ifeq ($(LISP),)
+$(error LISP is not set.)
+endif
 
-if (@ARGV != 1) {
-    die "Usage: ./test-unix.pl <INPUT-FILE>";
-}
+.PHONY: all clean
+all:
 
-my $INFILE = $ARGV[0];
-open(my $fd, $INFILE) or die("Can't open $INFILE: $!");
+all: paths1.spec
+paths1.spec : paths1.txt paths1.pl
+	./paths1.pl paths1.txt > paths1.spec
 
-my @paths = ();
+TESTDIR := ~/.fileutils-test-temp
 
-while (<$fd>) {
-    my $path = $_;
-    chomp($path);
-    print "((:path . \"$path\")";
-    my $abs = File::Spec::Unix->file_name_is_absolute($path);
-    print " (:absolute-p . " . ($abs ? "T" : "NIL") . ")";
-    my $clean = File::Spec::Unix->canonpath($path);
-    print " (:clean . \"$clean\")";
-    my ($vol, $dir, $file) = File::Spec::Unix->splitpath($path);
-    print " (:split . (\"$vol\" \"$dir\" \"$file\"))";
-    print ")\n";
-    push(@paths, $path);
-}
+all: paths1.ok
+paths1.ok : paths1.spec paths1.lisp
+	@rm -f paths1.ok
+	@rm -rf $(TESTDIR)
+	@mkdir -p $(TESTDIR)
+	@touch $(TESTDIR)/foo.txt
+	@touch $(TESTDIR)/bar.txt
+	@touch $(TESTDIR)/.emacs
+	@touch $(TESTDIR)/silly.
+	@mkdir $(TESTDIR)/.hiddendir
+	@mkdir $(TESTDIR)/sillydir.
+	@$(LISP) < paths1.lisp
+	@cat paths1.ok
+	@ls -l paths1.ok
+	@rm -rf $(TESTDIR)
 
-# foreach my $p1 (@paths)
-# {
-#     foreach my $p2 (@paths)
-#     {
-# 	my $cat = File::Spec::Unix->catpath($p1, $p2
-#     }
-# }
-
-
-
-close($fd);
-
+clean:
+	rm -f paths1.spec paths1.ok

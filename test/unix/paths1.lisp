@@ -44,7 +44,7 @@
             (read-entries stream)))))
 
 (defvar *entries*
-  (with-open-file (in "unix.spec")
+  (with-open-file (in "paths1.spec")
     (read-entries in)))
 
 (defunc check-entry (entry)
@@ -95,7 +95,7 @@
          "./"
          "../"
          "./Makefile"
-         "./../test/Makefile"
+         "./../unix/Makefile"
          *home*
          (fileutils:catfile *home* ".fileutils-test-temp")
          (fileutils:catfile *home* ".fileutils-test-temp/")
@@ -123,7 +123,7 @@
   (loop for entry in *entries* do (check-entry entry))
   (test-path-exists)
   (format t "All tests passed, writing .ok file.~%")
-  (with-open-file (out "unix.ok"
+  (with-open-file (out "paths1.ok"
                        :direction :output
                        :if-exists :supersede)
                   (format out "OK: Checked ~a entries and all tests passed.~%"

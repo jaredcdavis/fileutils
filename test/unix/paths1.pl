@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 # Fileutils -- A Common Lisp File Utilities Library
 # Copyright (C) 2014 Kookamara LLC
 #
@@ -30,30 +32,42 @@
 #
 # Original author: Jared Davis <jared@kookamara.com>
 
-.PHONY: all clean
-all:
+use warnings;
+use strict;
+use File::Spec::Unix;
 
-all: unix.spec
-unix.spec : unix-paths.txt test-unix.pl
-	./test-unix.pl unix-paths.txt > unix.spec
+if (@ARGV != 1) {
+    die "Usage: ./paths1.pl <INPUT-FILE>";
+}
 
-TESTDIR := ~/.fileutils-test-temp
+my $INFILE = $ARGV[0];
+open(my $fd, $INFILE) or die("Can't open $INFILE: $!");
 
-all: unix.ok
-unix.ok : unix.spec test-unix.lsp
-	@rm -f unix.ok
-	@rm -rf $(TESTDIR)
-	@mkdir -p $(TESTDIR)
-	@touch $(TESTDIR)/foo.txt
-	@touch $(TESTDIR)/bar.txt
-	@touch $(TESTDIR)/.emacs
-	@touch $(TESTDIR)/silly.
-	@mkdir $(TESTDIR)/.hiddendir
-	@mkdir $(TESTDIR)/sillydir.
-	@$(LISP) < test-unix.lsp
-	@cat unix.ok
-	@ls -l unix.ok
-	@rm -rf $(TESTDIR)
+my @paths = ();
 
-clean:
-	rm -f unix.spec unix.ok
+while (<$fd>) {
+    my $path = $_;
+    chomp($path);
+    print "((:path . \"$path\")";
+    my $abs = File::Spec::Unix->file_name_is_absolute($path);
+    print " (:absolute-p . " . ($abs ? "T" : "NIL") . ")";
+    my $clean = File::Spec::Unix->canonpath($path);
+    print " (:clean . \"$clean\")";
+    my ($vol, $dir, $file) = File::Spec::Unix->splitpath($path);
+    print " (:split . (\"$vol\" \"$dir\" \"$file\"))";
+    print ")\n";
+    push(@paths, $path);
+}
+
+# foreach my $p1 (@paths)
+# {
+#     foreach my $p2 (@paths)
+#     {
+# 	my $cat = File::Spec::Unix->catpath($p1, $p2
+#     }
+# }
+
+
+
+close($fd);
+
