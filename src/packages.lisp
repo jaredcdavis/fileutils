@@ -34,17 +34,16 @@
 
 (defpackage :fileutils
   (:use :cl)
-  (:export #:make-config
-           #:*default-config*
+  (:export #:+path-kinds+
            #:absolute-path-p
-           #:relative-path-p
+           #:catfile
            #:clean-path
            #:path-exists-p
-           #:homedir
-           #:catfile
-           #:split-path
-           #:path-type
            #:path-to-lisp
+           #:path-type
+           #:relative-path-p
+           #:split-path
+           #:homedir
            ))
 
 

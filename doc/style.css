@@ -36,7 +36,16 @@ Original author: Jared Davis <jared@kookamara.com>
 
 body {
     font-family: "Georgia", "Bookman Old Style", serif;
-    width: 55em;
+}
+
+.content {
+    width: 50em;
+}
+
+.floatright {
+    position: absolute;
+    top: auto;
+    left: 50em;
 }
 
 h1, h2, h3, h4, h5 {
@@ -88,4 +97,12 @@ h5 {
 
 .bozo {
     color: #660000;
+}
+
+.vpath {
+  color: #006060;
+}
+
+pre b {
+  color: #900000;
 }
